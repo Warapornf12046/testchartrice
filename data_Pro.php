@@ -1,6 +1,4 @@
 <?php
-header('Content-Type: application/json');
-
 // ตั้งค่าการเชื่อมต่อฐานข้อมูล
 $servername = "localhost";
 $username = "root";
@@ -15,17 +13,31 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// เตรียมคำสั่ง SQL เพื่อดึงข้อมูล
-      $sqlQuery = "SELECT YEAR(OrderProduct_Date) AS Year,
-            MONTH(OrderProduct_Date) AS Month,
-      ServiceProduct_Name,
-      COUNT(*) AS TotalOrders
-        FROM orderproduct
-        JOIN serviceandproduct ON orderproduct.ServiceProduct_Id = serviceandproduct.ServiceProduct_Id
-        GROUP BY YEAR(OrderProduct_Date), MONTH(OrderProduct_Date), ServiceProduct_Name
-        ORDER BY Year, Month, TotalOrders DESC
+// เตรียมค่าเดือนที่ได้รับจากการร้องขอ
+$selectedMonth = $_POST['month'];
 
-      ";
+// เพิ่มเงื่อนไขเพื่อกรองเดือน
+if (!empty($selectedMonth)) {
+    $sqlQuery = "SELECT YEAR(OrderProduct_Date) AS Year,
+                        MONTH(OrderProduct_Date) AS Month,
+                        ServiceProduct_Name,
+                        COUNT(*) AS TotalOrders
+                FROM orderproduct
+                JOIN serviceandproduct ON orderproduct.ServiceProduct_Id = serviceandproduct.ServiceProduct_Id
+                WHERE MONTH(OrderProduct_Date) = '$selectedMonth' 
+                GROUP BY YEAR(OrderProduct_Date), MONTH(OrderProduct_Date), ServiceProduct_Name
+                ORDER BY Year, Month, TotalOrders DESC";
+} else {
+    // กรณีที่ไม่ได้เลือกเดือน ให้ดึงข้อมูลทั้งหมด
+    $sqlQuery = "SELECT YEAR(OrderProduct_Date) AS Year,
+                        MONTH(OrderProduct_Date) AS Month,
+                        ServiceProduct_Name,
+                        COUNT(*) AS TotalOrders
+                FROM orderproduct
+                JOIN serviceandproduct ON orderproduct.ServiceProduct_Id = serviceandproduct.ServiceProduct_Id
+                GROUP BY YEAR(OrderProduct_Date), MONTH(OrderProduct_Date), ServiceProduct_Name
+                ORDER BY Year, Month, TotalOrders DESC";
+}
 
 // ทำการส่งคำสั่ง SQL ไปที่ฐานข้อมูล
 $result = mysqli_query($conn, $sqlQuery);
@@ -46,5 +58,4 @@ if (mysqli_num_rows($result) > 0) {
     // ถ้าไม่มีข้อมูลในฐานข้อมูล
     echo "No data found.";
 }
-
 ?>

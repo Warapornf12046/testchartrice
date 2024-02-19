@@ -21,25 +21,40 @@
     <div id="chart-container">
         <canvas id="graphCanvas"></canvas>
     </div>
+    
+    <!-- เพิ่มฟอร์มเลือกเดือน -->
+    <form id="monthForm">
+        <label for="month">Select month:</label>
+        <select id="month" name="month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <!-- เพิ่มตัวเลือกเดือนตามต้องการ -->
+        </select>
+        <button type="button" onclick="showGraph()">Show Graph</button>
+    </form>
 
     <script>
         $(document).ready(function () {
-            showGraph();
+            // ส่วนนี้ถูกเรียกเมื่อหน้าเว็บโหลดเสร็จ
+            showGraph(); // เรียกฟังก์ชัน showGraph เพื่อแสดงกราฟโดยใช้ข้อมูลเดิม (เดือนเริ่มต้น)
         });
 
         function showGraph() {
-            $.post("data_Pro.php", function (data) {
+            var selectedMonth = document.getElementById('month').value; // ดึงค่าเดือนที่เลือกจากฟอร์ม
+
+            $.post("data_Pro.php", { month: selectedMonth }, function (data) {
                 console.log(data);
                 var names = [];
                 var quantities = [];
 
                 for (var i in data) {
                     names.push(data[i].ServiceProduct_Name);
-                    quantities.push(data[i].TotalOrders); // แก้จาก TotalPurchases เป็น TotalOrders
+                    quantities.push(data[i].TotalOrders);
                 }
 
                 var chartdata = {
-                    labels: names,
+                    labels: [แกลบ,รำข้าว,ข้าวท่อน,ข้าวปลาย],
                     datasets: [{
                         data: quantities,
                         backgroundColor: [
@@ -54,10 +69,18 @@
 
                 var graphTarget = $("#graphCanvas");
 
+                // Clear previous chart if any
+                if(window.pieChart !== undefined){
+                    window.pieChart.destroy();
+                }
+
                 var pieChart = new Chart(graphTarget, {
-                    type: 'line',
+                    type: 'pie',
                     data: chartdata
                 });
+
+                // Store chart instance in global variable
+                window.pieChart = pieChart;
             });
         }
     </script>

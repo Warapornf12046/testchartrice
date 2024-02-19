@@ -1,20 +1,5 @@
+<?php include('include/conn.php'); ?>
 <?php
-header('Content-Type: application/json');
-
-// ตั้งค่าการเชื่อมต่อฐานข้อมูล
-$servername = "localhost";
-$username = "root";
-$password = "wp120646";
-$database = "ip";
-
-// ทำการเชื่อมต่อฐานข้อมูล
-$conn = mysqli_connect($servername, $username, $password, $database);
-
-// เช็คการเชื่อมต่อ
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
 // เตรียมคำสั่ง SQL เพื่อดึงข้อมูล
 $sqlQuery = "SELECT student_id, student_name, marks FROM tbl_marks ORDER BY student_id";
 
@@ -37,5 +22,4 @@ if (mysqli_num_rows($result) > 0) {
     // ถ้าไม่มีข้อมูลในฐานข้อมูล
     echo "No data found.";
 }
-
 ?>
